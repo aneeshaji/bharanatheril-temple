@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <!-- Royal Gold Gradient -->
+    <linearGradient id="gold24k" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="20%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="80%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+
+    <!-- Deep Ruby Kumkum Gradient -->
+    <linearGradient id="rubyKumkum" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="45%" stop-color="#be123c"/>
+      <stop offset="100%" stop-color="#881337"/>
+    </linearGradient>
+
+    <!-- Sacred Eternal Flame Gradient -->
+    <linearGradient id="divineFlame" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#fef08a"/>
+      <stop offset="60%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+
+    <!-- Radiant Aura Glow -->
+    <radialGradient id="haloGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#fde047" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#eab308" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ca8a04" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Drop Shadow Filter for Divine Depth -->
+    <filter id="divineShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#881337" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- 1. Background Halo & Aura -->
+  <circle cx="100" cy="100" r="92" fill="url(#haloGlow)" />
+  <circle cx="100" cy="100" r="88" stroke="url(#gold24k)" stroke-width="2.5" stroke-dasharray="4 2" opacity="0.85"/>
+  <circle cx="100" cy="100" r="82" stroke="url(#rubyKumkum)" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- 2. Sacred Prabhavali Rays (16 Auspicious Flame Petals) -->
+  <g transform="translate(100, 100)" filter="url(#divineShadow)">
+    <g stroke="url(#gold24k)" stroke-width="1.8" fill="url(#gold24k)">
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(22.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(45)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(67.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(90)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(112.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(135)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(157.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(180)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(202.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(225)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(247.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(270)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(292.5)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(315)"/>
+      <path d="M 0 -84 L 4 -74 L 0 -77 L -4 -74 Z" transform="rotate(337.5)"/>
+    </g>
+  </g>
+
+  <!-- 3. Inner Sacred Sanctum Medallion -->
+  <circle cx="100" cy="100" r="72" fill="url(#rubyKumkum)" stroke="url(#gold24k)" stroke-width="3"/>
+  <circle cx="100" cy="100" r="66" stroke="#fef08a" stroke-width="0.75" stroke-dasharray="2 2" opacity="0.6"/>
+
+  <!-- 4. Devi's Sacred Trishul & Crescent Moon (ത്രിശൂലം & ചന്ദ്രക്കല) -->
+  <!-- Crescent Moon -->
+  <path d="M 78 52 C 86 58 114 58 122 52 C 117 64 83 64 78 52 Z" fill="url(#gold24k)" />
+
+  <!-- Sacred Trishul (Trident of Mother Bhadrakali) -->
+  <!-- Center Spear Blade -->
+  <path d="M 100 24 C 103 36 106 50 106 66 L 94 66 C 94 50 97 36 100 24 Z" fill="url(#gold24k)" stroke="#ca8a04" stroke-width="0.8"/>
+  <path d="M 100 28 L 100 66" stroke="#fffbeb" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Left Trishul Prong -->
+  <path d="M 72 40 C 76 52 86 64 96 66 L 95 72 C 82 69 70 56 66 42 C 65 39 70 38 72 40 Z" fill="url(#gold24k)" stroke="#ca8a04" stroke-width="0.8"/>
+  
+  <!-- Right Trishul Prong -->
+  <path d="M 128 40 C 124 52 114 64 104 66 L 105 72 C 118 69 130 56 134 42 C 135 39 130 38 128 40 Z" fill="url(#gold24k)" stroke="#ca8a04" stroke-width="0.8"/>
+
+  <!-- Trishul Base Ring & Sacred Bindu -->
+  <ellipse cx="100" cy="71" rx="14" ry="4" fill="url(#gold24k)" stroke="#854d0e" stroke-width="0.8"/>
+  <circle cx="100" cy="50" r="3.8" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+
+  <!-- 5. Nilavilakku / Sacred Deepam (നിത്യദീപം) in Center Forefront -->
+  <!-- Deepam Flame -->
+  <path d="M 100 78 C 106 88 109 95 106 103 C 102 108 98 108 94 103 C 91 95 94 88 100 78 Z" fill="url(#divineFlame)" filter="url(#divineShadow)"/>
+  <path d="M 100 85 C 103 91 104 96 103 100 C 101 103 99 103 97 100 C 96 96 97 91 100 85 Z" fill="#ffffff"/>
+
+  <!-- Lamp Oil Cup (തട്ട്) -->
+  <ellipse cx="100" cy="110" rx="34" ry="9" fill="url(#gold24k)" stroke="#854d0e" stroke-width="1.5"/>
+  <ellipse cx="100" cy="108" rx="28" ry="6" fill="#881337" opacity="0.6"/>
+
+  <!-- Lamp Central Stem / Pillar (സ്തംഭം) -->
+  <path d="M 94 116 L 106 116 L 104 138 L 96 138 Z" fill="url(#gold24k)" stroke="#ca8a04" stroke-width="1"/>
+  <circle cx="100" cy="127" r="6" fill="url(#gold24k)" stroke="#854d0e" stroke-width="1"/>
+
+  <!-- Lamp Lower Oil Tray -->
+  <ellipse cx="100" cy="140" rx="42" ry="10" fill="url(#gold24k)" stroke="#854d0e" stroke-width="1.5"/>
+
+  <!-- 6. Sacred Padma Peedam (Lotus Base / പത്മപീഠം) -->
+  <!-- Lower Stand Column -->
+  <path d="M 93 147 L 107 147 L 112 165 L 88 165 Z" fill="url(#gold24k)" stroke="#854d0e" stroke-width="1"/>
+  
+  <!-- Lotus Petals (പത്മ ദളങ്ങൾ) -->
+  <g fill="url(#gold24k)" stroke="#ca8a04" stroke-width="0.8">
+    <path d="M 100 162 C 94 154 84 156 80 166 C 88 168 96 166 100 162 Z"/>
+    <path d="M 100 162 C 106 154 116 156 120 166 C 112 168 104 166 100 162 Z"/>
+    <path d="M 100 159 C 96 150 104 150 100 159 Z"/>
+  </g>
+
+  <!-- Grand Base (പീഠം) -->
+  <ellipse cx="100" cy="168" rx="48" ry="11" fill="url(#gold24k)" stroke="#854d0e" stroke-width="1.8"/>
+  <ellipse cx="100" cy="172" rx="42" ry="8" fill="#854d0e" opacity="0.4"/>
+</svg>
