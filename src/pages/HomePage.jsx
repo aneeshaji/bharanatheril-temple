@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Hero } from '../components/Hero';
 import {
-  templeInfo,
+  sacredSloka,
   darshanSchedule,
   deities,
   vazhipaduList,
@@ -9,49 +8,108 @@ import {
   nakshathras
 } from '../data/templeData';
 import {
-  Clock,
   Sparkles,
   ArrowRight,
-  HeartHandshake,
-  Calendar,
+  Clock,
   MapPin,
-  Shield,
   Flame,
   ChevronRight,
   BookOpen,
   CheckCircle2,
-  Image as ImageIcon,
-  Compass,
+  HeartHandshake,
   Star,
   Quote,
+  Compass,
+  Sun,
+  Bell,
+  Calendar,
   Check
 } from 'lucide-react';
 import { playTempleBell } from '../utils/soundEffects';
 import { useLanguage } from '../context/LanguageContext';
 
+const BANNER_SLIDES = [
+  {
+    id: 'devi',
+    image: '/images/hero-devi-portrait.jpg',
+    kickerEn: 'The Sacred Abode · Thurayilkunnu',
+    kickerMl: 'ശാക്തേയ സന്നിധി · തുറയിൽക്കുന്ന്',
+    headEn: 'Sacred Mother',
+    headMl: 'ശ്രീ ഭദ്രകാളി',
+    accentEn: 'Bhadrakali',
+    accentMl: 'ഭഗവതി',
+    subEn: 'Presiding Goddess of divine grace, fierce protection and unbroken Kerala tantric tradition.',
+    subMl: 'ദിവ്യ കാരുണ്യത്തിന്റെയും ശക്തമായ സംരക്ഷണത്തിന്റെയും പ്രധാന ശക്തി സന്നിധി.',
+    taglineEn: 'Five centuries of maternal benevolence, blessing every seeker who climbs the sacred mound of Thurayilkunnu.',
+    taglineMl: 'തുറയിൽക്കുന്നിന്റെ പുണ്യശ്രേണിയിൽ അഞ്ച് നൂറ്റാണ്ടുകളായി ഒഴുകുന്ന അമ്മയുടെ കാരുണ്യം.',
+    cta1En: 'Book Vazhipadu',
+    cta1Ml: 'വഴിപാട് ബുക്ക് ചെയ്യുക',
+    cta1Action: 'vazhipadu',
+    cta2En: 'Explore History',
+    cta2Ml: 'ക്ഷേത്ര ചരിത്രം',
+    cta2Action: 'about'
+  },
+  {
+    id: 'festival',
+    image: '/images/festival-pongala.jpg',
+    kickerEn: 'Grand Annual Kumbham / Meenam Festival',
+    kickerMl: 'വാർഷിക കുംഭ / മീന മഹോത്സവം',
+    headEn: 'Bharani',
+    headMl: 'ഭരണി മഹോത്സവം',
+    accentEn: 'Pongala',
+    accentMl: 'പൊങ്കാല',
+    subEn: 'Thalappoli, majestic Chenda Melam, Kuthiyottam and the midnight Guruthi of the goddess.',
+    subMl: 'താലപ്പൊലി, ചെണ്ടമേളം, കുത്തിയോട്ടം, അർദ്ധരാത്രി ഗുരുതി എന്നിവയാൽ ശോഭിക്കുന്ന മഹോത്സവം.',
+    taglineEn: 'Witness the grand festival of Thurayilkunnu where thousands gather beneath the sacred flame.',
+    taglineMl: 'ദിവ്യതീർത്ഥത്തിന് സാക്ഷ്യം വഹിക്കാൻ ആയിരങ്ങൾ ഒഴുകുന്ന തുറയിൽക്കുന്നിന്റെ പെരുമ.',
+    cta1En: 'Festival Schedule',
+    cta1Ml: 'ഉത്സവ വിവരങ്ങൾ',
+    cta1Action: 'festivals',
+    cta2En: 'Offer Kanikka',
+    cta2Ml: 'കാണിക്ക സമർപ്പിക്കുക',
+    cta2Action: 'donate'
+  },
+  {
+    id: 'sarpakavu',
+    image: '/images/hero-sarpakavu-bright.jpg',
+    kickerEn: 'Ancient Sacred Nature Grove',
+    kickerMl: 'പുരാതന പുണ്യ സർപ്പക്കാവ്',
+    headEn: 'Nagaraja',
+    headMl: 'നാഗരാജാവും',
+    accentEn: '& Nagayakshi',
+    accentMl: 'നാഗയക്ഷിയും',
+    subEn: 'A sanctum of ancient sacred flora with daily Ayilyam Pooja, Noorum Palum and turmeric abhishekam.',
+    subMl: 'ആയില്യപൂജ, നൂറുംപാലും, മഞ്ഞൾപ്പൊടി അഭിഷേകം എന്നിവയാല് അനുഗൃഹീതമായ പുണ്യസാന്നിധ്യം.',
+    taglineEn: 'Honour the serpent deities whose serene presence guards the temple grove and its devotees.',
+    taglineMl: 'ക്ഷേത്രക്കാവിനെയും ഭക്തരെയും കാത്ത് ഒരുമിച്ചു വാഴുന്ന നാഗസാന്നിധ്യം.',
+    cta1En: 'Book Sarpa Pooja',
+    cta1Ml: 'സർപ്പപൂജ ബുക്ക് ചെയ്യുക',
+    cta1Action: 'vazhipadu',
+    cta2En: 'View All Shrines',
+    cta2Ml: 'എല്ലാ സന്നിധികളും',
+    cta2Action: 'deities'
+  }
+];
+
 export function HomePage({ onNavigate, onOpenDonation, onSelectDeityForPooja }) {
   const { lang, t } = useLanguage();
 
-  // Live Festival Countdown State
+  const [activeSlide, setActiveSlide] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ days: 12, hours: 8, minutes: 45, seconds: 30 });
+  const [darshanPhase, setDarshanPhase] = useState('morning');
+  const [currentIstTime, setCurrentIstTime] = useState('');
+  const [bellRung, setBellRung] = useState(false);
 
-  // Architectural Heritage Active Tab
-  const [activeHeritageTab, setActiveHeritageTab] = useState('srikovil');
-
-  // Vazhipadu Filter State
   const [activeOfferingCategory, setActiveOfferingCategory] = useState('All');
 
-  // Virtual Diya Offering State
   const [selectedNakshatram, setSelectedNakshatram] = useState('Bharani');
   const [diyaDevoteeName, setDiyaDevoteeName] = useState('');
   const [virtualDiyaSubmitted, setVirtualDiyaSubmitted] = useState(false);
   const [virtualDiyasCount, setVirtualDiyasCount] = useState(1842);
 
-  // Active Darshan Phase tracker
-  const [darshanPhase, setDarshanPhase] = useState('morning');
-
+  // Live festival countdown
   useEffect(() => {
-    const targetDate = new Date(festivals[0]?.dateTarget || '2026-03-22T00:00:00').getTime();
+    const targetDate = new Date(festivals[0]?.dateTarget || '2027-03-24T06:00:00').getTime();
     const updateCountdown = () => {
       const diff = targetDate - Date.now();
       if (diff > 0) {
@@ -59,10 +117,8 @@ export function HomePage({ onNavigate, onOpenDonation, onSelectDeityForPooja }) 
           days: Math.floor(diff / 86400000),
           hours: Math.floor((diff % 86400000) / 3600000),
           minutes: Math.floor((diff % 3600000) / 60000),
-          seconds: Math.floor((diff % 60000) / 1000),
+          seconds: Math.floor((diff % 60000) / 1000)
         });
-      } else {
-        setTimeLeft({ days: 14, hours: 6, minutes: 20, seconds: 15 });
       }
     };
     updateCountdown();
@@ -70,89 +126,103 @@ export function HomePage({ onNavigate, onOpenDonation, onSelectDeityForPooja }) 
     return () => clearInterval(timer);
   }, []);
 
-  // Update Darshan status based on current IST time
+  // Live IST darshan phase
   useEffect(() => {
     const checkPhase = () => {
       const now = new Date();
-      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-      const istDate = new Date(utc + (3600000 * 5.5));
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const istDate = new Date(utc + 3600000 * 5.5);
       const hours = istDate.getHours();
       const minutes = istDate.getMinutes();
       const totalMinutes = hours * 60 + minutes;
-
-      // 5:30 AM to 11:00 AM (330 to 660 mins)
-      // 5:00 PM to 8:00 PM (1020 to 1200 mins)
-      if (totalMinutes >= 330 && totalMinutes <= 660) {
-        setDarshanPhase('morning');
-      } else if (totalMinutes >= 1020 && totalMinutes <= 1200) {
-        setDarshanPhase('evening');
-      } else {
-        setDarshanPhase('closed');
-      }
+      if (totalMinutes >= 330 && totalMinutes <= 660) setDarshanPhase('morning');
+      else if (totalMinutes >= 1020 && totalMinutes <= 1200) setDarshanPhase('evening');
+      else setDarshanPhase('closed');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const h12 = hours % 12 || 12;
+      const mm = minutes < 10 ? '0' + minutes : minutes;
+      setCurrentIstTime(`${h12}:${mm} ${ampm} IST`);
     };
     checkPhase();
     const intv = setInterval(checkPhase, 30000);
     return () => clearInterval(intv);
   }, []);
 
-  // Filter offerings
-  const filteredOfferings = activeOfferingCategory === 'All'
-    ? vazhipaduList.filter(v => v.popular).slice(0, 8)
-    : vazhipaduList.filter(v => v.deity.toLowerCase().includes(activeOfferingCategory.toLowerCase())).slice(0, 8);
+  // Hero auto-advance
+  useEffect(() => {
+    const timer = setInterval(() => setActiveSlide((p) => (p + 1) % BANNER_SLIDES.length), 7000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // Architectural tabs data
-  const heritageTabs = [
-    {
-      id: 'srikovil',
-      labelEn: 'Srikovil Sanctum',
-      labelMl: 'ശ്രീകോവിൽ സന്നിധി',
-      titleEn: 'Sacred Traditional Laterite Srikovil',
-      titleMl: 'പവിത്രമായ തച്ചുശാസ്ത്ര ശ്രീകോവിൽ',
-      descEn: 'Erected according to sacred Kerala Vastu Vidya (Thachu-shastra), the square sanctum is crafted from seasoned laterite stone and teak wood, crowned with copper tiles. It retains immense spiritual energy where Sree Bhadrakali presides in full divine benevolence.',
-      descMl: 'പരമ്പരാഗത തച്ചുശാസ്ത്ര വിധിപ്രകാരം നിർമ്മിച്ച ചതുര ശ്രീകോവിലും ചുറ്റമ്പലവും. ചെമ്പ് മേഞ്ഞ മേൽക്കൂരയും കൊത്തുപണികളും നിറഞ്ഞ ഈ സന്നിധിയിൽ ശ്രീ ഭദ്രകാളി സർവ്വാഭരണവിഭൂഷിതയായി കുടികൊള്ളുന്നു.',
-      image: '/images/temple-exterior.jpg',
-      statLabelEn: 'Vastu Vidya Structure',
-      statLabelMl: 'തച്ചുശാസ്ത്ര നിർമ്മിതി',
-      statVal: '100% Traditional'
-    },
-    {
-      id: 'sarpakavu',
-      labelEn: 'Ancient Sarpa Kavu',
-      labelMl: 'പുരാതന സർപ്പക്കാവ്',
-      titleEn: 'Sacred Grove of Nagaraja & Nagayakshi',
-      titleMl: 'ഔഷധ സമൃദ്ധമായ പവിത്ര സർപ്പക്കാവ്',
-      descEn: 'A lush, untouched ecological haven preserving indigenous medicinal trees, creepers, and pristine flora. Daily rituals of Noorum Palum and Manjal Podi are performed at the consecrated granite serpent idols to dispel Sarpa Doshas and usher in prosperity.',
-      descMl: 'വിശുദ്ധമായ വൃക്ഷലതാദികളും ഔഷധ സസ്യങ്ങളും സംരക്ഷിക്കപ്പെടുന്ന പുരാതന സർപ്പക്കാവ്. സർപ്പദോഷ ശാന്തിക്കും സന്താന സൗഭാഗ്യത്തിനുമായി നൂറും പാലും മഞ്ഞൾപ്പൊടി ആട്ടവും ഇവിടെ അനുഷ്ഠിക്കുന്നു.',
-      image: '/images/sarpa-kavu.jpg',
-      statLabelEn: 'Sacred Flora & Trees',
-      statLabelMl: 'ഔഷധ വൃക്ഷങ്ങൾ',
-      statVal: 'Eco Sanctuary'
-    },
-    {
-      id: 'annadanam',
-      labelEn: 'Holy Prasada Oottu',
-      labelMl: 'നിത്യ അന്നദാനം',
-      titleEn: 'Sacred Nithya Annadanam Seva',
-      titleMl: 'സഹസ്രങ്ങൾക്ക് അന്നം നൽകുന്ന മഹാപുണ്യം',
-      descEn: 'The sanctified temple kitchen (Thidappally) prepares pure vegetarian feast (Prasada Oottu) served daily to hundreds of visiting pilgrims without caste, creed, or distinction, upholding the timeless Kerala adage "Annadanam Mahadanam".',
-      descMl: 'ക്ഷേത്ര തിടപ്പള്ളിയിൽ അതീവ ശുദ്ധിയോടെ പാകം ചെയ്യുന്ന ഭഗവതിയുടെ അമൃതേത്ത്. ജാതിമത ഭേദമില്ലാതെ നിത്യേന നൂറുകണക്കിന് ഭക്തജനങ്ങൾക്ക് അന്നപ്രസാദം നൽകുന്ന പുണ്യസേവനം.',
-      image: '/images/festival-pongala.jpg',
-      statLabelEn: 'Devotees Fed Daily',
-      statLabelMl: 'നിത്യേന അന്നദാനം',
-      statVal: '350+ Devotees'
-    }
+  // Scroll reveal on view
+  useEffect(() => {
+    const els = document.querySelectorAll('.kt-reveal');
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('kt-in');
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  const slide = BANNER_SLIDES[activeSlide];
+
+  const isOpen = darshanPhase !== 'closed';
+
+  const offeringCategories = [
+    { id: 'All', deps: [] },
+    { id: 'Bhadrakali', deps: ['bhadra'] },
+    { id: 'Ganapathy', deps: ['ganapathi'] },
+    { id: 'Nagaraja', deps: ['nagaraja'] }
   ];
 
-  const activeTabData = heritageTabs.find(t => t.id === activeHeritageTab) || heritageTabs[0];
+  const filteredOfferings = (() => {
+    const cat = offeringCategories.find((c) => c.id === activeOfferingCategory);
+    if (!cat || cat.deps.length === 0) {
+      return vazhipaduList.filter((v) => v.popular).slice(0, 6);
+    }
+    return vazhipaduList
+      .filter((v) => cat.deps.some((d) => v.deity.toLowerCase().includes(d)))
+      .slice(0, 6);
+  })();
 
   const handleVirtualDiyaSubmit = (e) => {
     e.preventDefault();
     setVirtualDiyaSubmitted(true);
-    setVirtualDiyasCount(prev => prev + 1);
+    setVirtualDiyasCount((prev) => prev + 1);
     playTempleBell(1.2);
   };
 
-  // Devotee Testimonials Data
+  const handleRingBell = () => {
+    playTempleBell(1.1);
+    setBellRung(true);
+    setTimeout(() => setBellRung(false), 2400);
+  };
+
+  const navigateTo = (target) => {
+    if (target === 'donate') onOpenDonation();
+    else onNavigate(target);
+  };
+
+  const heroCTA = (action) => () => navigateTo(action);
+
+  const morning = darshanSchedule[0];
+  const evening = darshanSchedule[1];
+
+  const metrics = [
+    { value: '500+', labelEn: 'Years of Sanctity', labelMl: 'വർഷത്തെ സാന്നിധ്യം' },
+    { value: '5', labelEn: 'Consecrated Shrines', labelMl: 'പുണ്യ സന്നിധികൾ' },
+    { value: '365', labelEn: 'Days of Annadanam', labelMl: 'നിത്യ അന്നദാനം' },
+    { value: '80G', labelEn: 'Tax-Exempt Trust', labelMl: 'നികുതി ഇളവ്' }
+  ];
+
   const testimonials = [
     {
       name: 'Ramesh K. Pillai',
@@ -180,424 +250,461 @@ export function HomePage({ onNavigate, onOpenDonation, onSelectDeityForPooja }) 
     }
   ];
 
+  const essentials = [
+    {
+      id: 'darshan',
+      icon: Clock,
+      titleEn: 'Darshan Timings',
+      titleMl: 'ദർശന സമയം',
+      descEn: 'Daily sanctum opening, deeparadhana, and the special pooja calendar.',
+      descMl: 'നിത്യ പൂജാക്രമങ്ങളും ദീപാരാധന സമയങ്ങളും.',
+      ctaEn: 'View Schedule',
+      ctaMl: 'സമയക്രമം'
+    },
+    {
+      id: 'vazhipadu',
+      icon: Sparkles,
+      titleEn: 'Vazhipadu Booking',
+      titleMl: 'വഴിപാട് ബുക്കിംഗ്',
+      descEn: 'Book payasam, archana, and homam offerings online with an instant digital receipt.',
+      descMl: 'വഴിപാടുകൾ ഓൺലൈനായി ബുക്ക് ചെയ്ത് രസീത് നേടാം.',
+      ctaEn: 'Book Online',
+      ctaMl: 'ഓൺലൈൻ ബുക്കിംഗ്'
+    },
+    {
+      id: 'kanikka',
+      icon: HeartHandshake,
+      titleEn: 'E-Kanikka',
+      titleMl: 'E-കാണിക്ക',
+      descEn: 'Official temple trust account, online UPI, and 80G tax exemption.',
+      descMl: 'ക്ഷേത്ര ട്രസ്റ്റ് അക്കൗണ്ട്, 80G നികുതി ഇളവ്.',
+      ctaEn: 'Donate Online',
+      ctaMl: 'കാണിക്ക സമർപ്പിക്കുക'
+    },
+    {
+      id: 'contact',
+      icon: Compass,
+      titleEn: 'How to Reach',
+      titleMl: 'വഴികാട്ടി',
+      descEn: 'NH 66 Karunagappally road, train routes, and the temple office helpline.',
+      descMl: 'യാത്രാ വഴികളും ക്ഷേത്ര ഓഫീസ് വിവരങ്ങളും.',
+      ctaEn: 'Get Directions',
+      ctaMl: 'വഴികാട്ടി'
+    }
+  ];
+
   return (
-    <div className="home-page-view modern-home">
-      {/* Modern Clean Hero Section */}
-      <Hero
-        onOpenVazhipadu={() => onNavigate('vazhipadu')}
-        onOpenDonation={onOpenDonation}
-        onNavigate={onNavigate}
-      />
+    <div className="kt-home">
+      {/* ============ HERO / BANNER ============ */}
+      <section className="kt-hero" aria-label="Temple Main Banner">
+        <div className="kt-hero-bg" aria-hidden="true" />
+        <div className="kt-kasavu-top" aria-hidden="true" />
 
-      {/* Realtime Animated Darshan Schedule Timeline Ribbon */}
-      <section className="modern-darshan-strip">
+        <div className="container kt-hero-inner">
+          <div className="kt-hero-copy" key={slide.id}>
+            <p className="kt-mantra">
+              <Sparkles size={11} />
+              <span>{lang === 'en' ? 'Om Sree Bhadrakalyai Namah' : 'ഓം ശ്രീ ഭദ്രകാള്യൈ നമഃ'}</span>
+              <span className="kt-mantra-dot" />
+              <span>{lang === 'en' ? 'Thurayilkunnu · Karunagappally' : 'തുറയിൽക്കുന്ന് · കരുനാഗപ്പള്ളി'}</span>
+            </p>
+
+            <div className="kt-status-row">
+              <span className={`kt-status ${isOpen ? 'open' : 'closed'}`}>
+                <span className="kt-status-dot" />
+                <span>{isOpen ? t('nadaOpen') : t('nadaClosed')}</span>
+                <i>{currentIstTime}</i>
+              </span>
+            </div>
+
+            <p className="kt-kicker">{lang === 'en' ? slide.kickerEn : slide.kickerMl}</p>
+
+            <h1 className={`kt-hero-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? slide.headEn : slide.headMl}
+              <em> {lang === 'en' ? slide.accentEn : slide.accentMl}</em>
+            </h1>
+
+            <p className={`kt-hero-sub ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? slide.subEn : slide.subMl}
+            </p>
+
+            <p className="kt-hero-tag">{lang === 'en' ? slide.taglineEn : slide.taglineMl}</p>
+
+            <div className="kt-hero-ctas">
+              <button className="kt-btn kt-btn-gold" onClick={heroCTA(slide.cta1Action)}>
+                <span>{lang === 'en' ? slide.cta1En : slide.cta1Ml}</span>
+                <ArrowRight size={16} />
+              </button>
+              <button className="kt-btn kt-btn-outline" onClick={heroCTA(slide.cta2Action)}>
+                <span>{lang === 'en' ? slide.cta2En : slide.cta2Ml}</span>
+              </button>
+            </div>
+
+            <div className="kt-dots" role="tablist" aria-label="Banner slides">
+              {BANNER_SLIDES.map((s, i) => (
+                <button
+                  key={s.id}
+                  className={`kt-dot ${i === activeSlide ? 'active' : ''}`}
+                  onClick={() => setActiveSlide(i)}
+                  aria-label={`Slide ${i + 1}: ${s.id}`}
+                  title={s.id}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="kt-hero-media">
+            <div className="kt-hero-frame">
+              {BANNER_SLIDES.map((s, i) => (
+                <img
+                  key={s.id}
+                  src={s.image}
+                  alt={lang === 'en' ? s.kickerEn : s.kickerMl}
+                  className={i === activeSlide ? 'active' : ''}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              ))}
+              <span className="kt-frame-kasavu" aria-hidden="true" />
+            </div>
+            <div className="kt-hero-badge">
+              <strong>500+</strong>
+              <span>{lang === 'en' ? 'Years of Sanctity' : 'വർഷത്തെ സാന്നിധ്യം'}</span>
+            </div>
+            <div className="kt-hero-index" aria-hidden="true">
+              <span>0{activeSlide + 1}</span>
+              <i>/</i>
+              <span>0{BANNER_SLIDES.length}</span>
+            </div>
+          </div>
+        </div>
+
         <div className="container">
-          <div className="modern-strip-card animated-glass-surface">
-            {/* Live Status indicator */}
-            <div className="strip-col live-status-col">
-              <div className="strip-col-icon pulse-glow">
-                <Clock size={20} className="text-gold" />
-              </div>
-              <div className="strip-col-text">
-                <div className="strip-badge-row">
-                  <span className={`strip-live-pill ${darshanPhase !== 'closed' ? 'open' : 'closed'}`}>
-                    <span className="strip-pulse-dot"></span>
-                    {darshanPhase !== 'closed' ? t('nadaOpen') : t('nadaClosed')}
-                  </span>
-                </div>
-                <strong className="strip-col-val">
-                  {darshanPhase === 'morning'
-                    ? (lang === 'en' ? 'Morning Darshan Active' : 'പ്രഭാത ദർശനം തുടരുന്നു')
-                    : darshanPhase === 'evening'
-                    ? (lang === 'en' ? 'Evening Deeparadhana Active' : 'സന്ധ്യാ ദീപാരാധന തുടരുന്നു')
-                    : (lang === 'en' ? 'Temple Reopens at 5:00 PM' : 'വൈകുന്നേരം 5:00-ന് നട തുറക്കും')}
-                </strong>
-              </div>
+          <div className="kt-darshan-bar">
+            <div className="kt-bar-item">
+              <Sun size={17} />
+              <span>
+                <small>{lang === 'en' ? 'Morning Darshan' : 'പ്രഭാത ദർശനം'}</small>
+                <strong>{morning.timings}</strong>
+              </span>
+              <i className={`kt-bar-dot ${darshanPhase === 'morning' ? 'on' : ''}`} />
             </div>
-
-            <div className="strip-pipe"></div>
-
-            {/* Morning Darshan Slot */}
-            <div className="strip-col">
-              <div className="strip-col-icon">
-                <Flame size={18} className="text-gold" />
-              </div>
-              <div className="strip-col-text">
-                <span className="strip-col-label">{t('morningDarshan')}</span>
-                <strong className="strip-col-val">5:30 AM – 11:00 AM</strong>
-              </div>
+            <div className="kt-bar-item">
+              <Flame size={17} />
+              <span>
+                <small>{lang === 'en' ? 'Evening Deeparadhana' : 'സന്ധ്യാ ദീപാരാധന'}</small>
+                <strong>{evening.timings}</strong>
+              </span>
+              <i className={`kt-bar-dot ${darshanPhase === 'evening' ? 'on' : ''}`} />
             </div>
-
-            <div className="strip-pipe"></div>
-
-            {/* Evening Darshan Slot */}
-            <div className="strip-col">
-              <div className="strip-col-icon">
-                <Sparkles size={18} className="text-gold" />
-              </div>
-              <div className="strip-col-text">
-                <span className="strip-col-label">{t('eveningDarshan')}</span>
-                <strong className="strip-col-val">5:00 PM – 8:00 PM</strong>
-              </div>
-            </div>
-
-            <div className="strip-pipe"></div>
-
-            {/* Action Link */}
-            <div className="strip-col-action">
-              <button className="btn-modern-gold-sm" onClick={() => onNavigate('darshan')}>
-                <span>{t('viewFullTimings')}</span>
-                <ArrowRight size={14} className="hover-arrow" />
+            <div className="kt-bar-cta">
+              <button
+                className={`kt-bell ${bellRung ? 'rung' : ''}`}
+                onClick={handleRingBell}
+                title={lang === 'en' ? 'Ring Sacred Temple Bell' : 'ക്ഷേത്രമണി മുഴക്കുക'}
+                aria-label="Ring temple bell"
+              >
+                <Bell size={16} className={bellRung ? 'animate-wiggle' : ''} />
+              </button>
+              <button className="kt-btn kt-btn-outline kt-btn-sm" onClick={() => onNavigate('darshan')}>
+                <span>{lang === 'en' ? 'View Timings' : 'സമയക്രമം'}</span>
+                <ArrowRight size={14} />
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Sacred Sanctum & Heritage Editorial Section */}
-      <section className="home-welcome-section modern-section section-padding">
-        <div className="container">
-          <div className="welcome-modern-grid">
-            {/* Visual Column with Geometric Gold Frame */}
-            <div className="welcome-modern-visual">
-              <div className="modern-img-wrapper hover-card-tilt">
-                <img
-                  src={activeTabData.image}
-                  alt={lang === 'en' ? activeTabData.titleEn : activeTabData.titleMl}
-                  className="welcome-hero-img crossfade-img"
-                  key={activeHeritageTab}
-                />
-                <div className="welcome-gold-accent-border"></div>
-                <div className="welcome-glass-badge animated-glass-float">
-                  <div className="badge-glow-icon">
-                    <Sparkles size={20} className="text-gold animate-flame" />
-                  </div>
-                  <div>
-                    <h5 className="badge-strong">{activeTabData.statVal}</h5>
-                    <p className="badge-sub">{lang === 'en' ? activeTabData.statLabelEn : activeTabData.statLabelMl}</p>
-                  </div>
-                </div>
-              </div>
+      {/* ============ SLOKA ============ */}
+      <section className="kt-sloka" aria-hidden="true">
+        <div className="kt-sloka-kasavu" />
+        <div className="container kt-sloka-inner">
+          <span className="kt-sloka-line" />
+          <p>{lang === 'en' ? sacredSloka.english : sacredSloka.sanskrit}</p>
+          <span className="kt-sloka-line" />
+        </div>
+      </section>
 
-              {/* 4 Stat Badges */}
-              <div className="heritage-metrics-grid">
-                <div className="metric-box">
-                  <span className="metric-num">500+</span>
-                  <span className="metric-label">{lang === 'en' ? 'Years of Sanctity' : 'വർഷത്തെ പാരമ്പര്യം'}</span>
-                </div>
-                <div className="metric-box">
-                  <span className="metric-num">5</span>
-                  <span className="metric-label">{lang === 'en' ? 'Consecrated Shrines' : 'പുണ്യ സന്നിധികൾ'}</span>
-                </div>
-                <div className="metric-box">
-                  <span className="metric-num">365</span>
-                  <span className="metric-label">{lang === 'en' ? 'Days Annadanam' : 'നിത്യ അന്നദാനം'}</span>
-                </div>
-                <div className="metric-box">
-                  <span className="metric-num">80G</span>
-                  <span className="metric-label">{lang === 'en' ? 'Tax-Exempt Trust' : 'നികുതി ഇളവ്'}</span>
-                </div>
+      {/* ============ INTRO ============ */}
+      <section className="kt-intro">
+        <div className="container">
+          <div className="kt-intro-grid">
+            <div className="kt-intro-media kt-reveal">
+              <div className="kt-frame">
+                <img src="/images/temple-exterior.jpg" alt="Bharanatheril Temple" />
+                <span className="kt-frame-chip">
+                  {lang === 'en' ? 'The Sanctum at Thurayilkunnu' : 'തുറയിൽക്കുന്നിലെ പുണ്യക്ഷേത്രം'}
+                </span>
+                <span className="kt-frame-kasavu" aria-hidden="true" />
+              </div>
+              <div className="kt-plaque">
+                <strong>500+</strong>
+                <span>{lang === 'en' ? 'Years of Unbroken Worship' : 'വർഷങ്ങളായുള്ള ആരാധന'}</span>
               </div>
             </div>
 
-            {/* Content Column with Interactive Tabs */}
-            <div className="welcome-modern-content">
-              <div className="modern-eyebrow">
-                <Sparkles size={14} className="text-gold" />
-                <span>{lang === 'en' ? 'Sacred Abode of Bhadrakali' : 'ശ്രീ ഭദ്രകാളിയുടെ പുണ്യസന്നിധി'}</span>
+            <div className="kt-intro-copy kt-reveal">
+              <div className="kt-eyebrow">
+                <span className="kt-rule" />
+                <span>{lang === 'en' ? 'The Sacred Abode of Bhadrakali' : 'ശ്രീ ഭദ്രകാളിയുടെ പുണ്യസന്നിധി'}</span>
               </div>
-              
-              <h2 className={`welcome-headline ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+
+              <h2 className={`kt-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
                 {lang === 'en' ? (
-                  <>Sacred Abode of Divine Grace & <span className="gold-shimmer-text">Motherly Protection</span></>
+                  <>Grace that has shielded <em>generations</em> of devotees</>
                 ) : (
-                  <>മാതൃവാത്സല്യവും ദിവ്യാനുഗ്രഹവും നിറയുന്ന <span className="gold-shimmer-text">പുണ്യസന്നിധി</span></>
+                  <>തലമുറകളെ <em>കാത്തുരക്ഷിച്ച</em> മാതൃകാരുണ്യം</>
                 )}
               </h2>
 
-              <p className="welcome-paragraph">
-                {t('welcomeDescText')}
-              </p>
+              <p className="kt-intro-body">{t('welcomeDescText')}</p>
 
-              {/* Interactive Heritage Tabs */}
-              <div className="heritage-tabs-pills">
-                {heritageTabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    className={`heritage-pill-btn ${activeHeritageTab === tab.id ? 'active' : ''}`}
-                    onClick={() => {
-                      setActiveHeritageTab(tab.id);
-                      playTempleBell(1.1);
-                    }}
-                  >
-                    <span>{lang === 'en' ? tab.labelEn : tab.labelMl}</span>
-                  </button>
-                ))}
-              </div>
+              <ul className="kt-points">
+                <li><Check size={15} /><span>{t('welcomePt1')}</span></li>
+                <li><Check size={15} /><span>{t('welcomePt2')}</span></li>
+                <li><Check size={15} /><span>{t('welcomePt3')}</span></li>
+              </ul>
 
-              {/* Dynamic Feature Details Card */}
-              <div className="welcome-feature-card dynamic-heritage-card" key={activeHeritageTab}>
-                <div className="feature-card-icon">
-                  <Shield size={20} className="text-gold" />
-                </div>
-                <div className="feature-card-body">
-                  <strong>{lang === 'en' ? activeTabData.titleEn : activeTabData.titleMl}</strong>
-                  <p>{lang === 'en' ? activeTabData.descEn : activeTabData.descMl}</p>
-                </div>
-              </div>
-
-              <div className="welcome-actions-row">
-                <button className="btn-modern-wine" onClick={() => onNavigate('about')}>
-                  <BookOpen size={16} />
-                  <span>{t('readHistory')}</span>
-                  <ArrowRight size={16} className="btn-arrow" />
-                </button>
-                <button className="btn-modern-outline" onClick={() => onNavigate('deities')}>
-                  <span>{t('viewDeities')}</span>
-                </button>
-              </div>
+              <button className="kt-link" onClick={() => onNavigate('about')}>
+                <BookOpen size={16} />
+                <span>{lang === 'en' ? 'Read the Temple History' : 'ക്ഷേത്ര ചരിത്രം വായിക്കുക'}</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
+          </div>
+
+          <div className="kt-metrics kt-reveal">
+            {metrics.map((m, i) => (
+              <div className="kt-metric" key={i}>
+                <strong>{m.value}</strong>
+                <span>{lang === 'en' ? m.labelEn : m.labelMl}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* The 5 Consecrated Shrines Showcase */}
-      <section className="home-deities-section modern-section section-padding-bg">
+      {/* ============ SHRINES ============ */}
+      <section className="kt-shrines">
         <div className="container">
-          <div className="section-header-modern">
-            <span className="modern-eyebrow">
-              <Shield size={14} className="text-gold" />
-              <span>{lang === 'en' ? 'Consecrated Upadevathas' : 'പ്രതിഷ്ഠകളും ഉപദേവതകളും'}</span>
-            </span>
-            <h2 className={`modern-section-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-              {lang === 'en' ? 'The 5 Sacred Shrines' : 'പവിത്രമായ 5 സന്നിധികൾ'}
+          <div className="kt-head kt-reveal">
+            <div className="kt-eyebrow">
+              <span className="kt-rule" />
+              <span>{lang === 'en' ? 'Presiding & Guardian Deities' : 'പ്രതിഷ്ഠകളും ഉപദേവതകളും'}</span>
+            </div>
+            <h2 className={`kt-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? (
+                <>The Five <em>Sacred Shrines</em></>
+              ) : (
+                <>പവിത്രമായ അഞ്ച് സന്നിധികൾ</>
+              )}
             </h2>
-            <p className="modern-section-subtitle">
+            <p className="kt-sub">
               {lang === 'en'
-                ? 'Pay homage to Presiding Mother Bhadrakali and the consecrated guardian deities at Thurayilkunnu.'
+                ? 'Pay homage to presiding Mother Bhadrakali and the consecrated guardian deities at Thurayilkunnu.'
                 : 'തുറയിൽക്കുന്നിലെ പ്രധാന പ്രതിഷ്ഠയായ ശ്രീ ഭദ്രകാളിയെയും പുണ്യ ഉപദേവതകളെയും വണങ്ങി അനുഗ്രഹം നേടൂ.'}
             </p>
-            <div className="modern-golden-rule"></div>
           </div>
 
-          <div className="modern-deities-showcase-grid">
+          <div className="kt-shrines-grid">
             {deities.map((deity, idx) => (
-              <div
+              <article
                 key={deity.id}
-                className={`modern-deity-card hover-lift-card ${idx === 0 ? 'primary-deity-card' : ''}`}
+                className={`kt-shrine-card kt-reveal ${idx === 0 ? 'featured' : ''}`}
               >
-                <div className="deity-card-img-wrap">
-                  <img src={deity.image} alt={lang === 'en' ? deity.nameEn : deity.nameMl} className="deity-img" />
-                  <div className="deity-card-overlay-gradient"></div>
-                  <span className="deity-card-role-chip">
-                    <Shield size={12} />
-                    <span>{lang === 'ml' ? (deity.roleMl || deity.role) : (deity.roleEn || deity.role)}</span>
-                  </span>
+                <div className="kt-shrine-media">
+                  <img src={deity.image} alt={lang === 'en' ? deity.nameEn : deity.nameMl} />
+                  <span className="kt-shrine-idx">{String(idx + 1).padStart(2, '0')}</span>
+                  {idx === 0 && (
+                    <span className="kt-featured">{lang === 'en' ? 'Presiding Deity' : 'പ്രധാന പ്രതിഷ്ഠ'}</span>
+                  )}
                 </div>
-
-                <div className="deity-card-content">
-                  <h4 className={lang === 'ml' ? 'deity-card-title text-malayalam' : 'deity-card-title'}>
-                    {lang === 'en' ? deity.nameEn : deity.nameMl}
-                  </h4>
-                  <p className="deity-card-desc">
-                    {(lang === 'ml' ? (deity.descMl || deity.description) : deity.descEn || deity.description).slice(0, 110)}…
+                <div className="kt-shrine-body">
+                  <p className="kt-shrine-role">
+                    {lang === 'ml' ? deity.roleMl || deity.role : deity.roleEn || deity.role}
                   </p>
-                  
-                  <div className="deity-card-bottom">
-                    <button
-                      className="btn-deity-book"
-                      onClick={() => onSelectDeityForPooja(deity.nameEn)}
-                    >
-                      <Sparkles size={14} />
-                      <span>{t('bookOffering')}</span>
-                    </button>
-                  </div>
+                  <h3 className={lang === 'ml' ? 'text-malayalam' : ''}>
+                    {lang === 'en' ? deity.nameEn : deity.nameMl}
+                  </h3>
+                  <p className="kt-shrine-desc">
+                    {(lang === 'ml' ? deity.descMl || deity.description : deity.descEn || deity.description).slice(0, 96)}…
+                  </p>
+                  <button className="kt-link" onClick={() => onSelectDeityForPooja(deity.nameEn)}>
+                    <span>{t('bookOffering')}</span>
+                    <ArrowRight size={14} />
+                  </button>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
 
-          <div className="section-center-action">
-            <button className="btn-modern-outline-lg" onClick={() => onNavigate('deities')}>
-              <span>{t('viewAllShrines')}</span>
+          <div className="kt-center">
+            <button className="kt-btn kt-btn-outline" onClick={() => onNavigate('deities')}>
+              <span>{lang === 'en' ? 'View All Five Shrines' : 'എല്ലാ സന്നിധികളും കാണുക'}</span>
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Curated Vazhipadu Offerings Showcase */}
-      <section className="home-vazhipadu-section modern-section section-padding">
+      {/* ============ OFFERINGS ============ */}
+      <section className="kt-offerings">
         <div className="container">
-          <div className="section-header-modern">
-            <span className="modern-eyebrow">
-              <Sparkles size={14} className="text-gold" />
+          <div className="kt-head kt-reveal">
+            <div className="kt-eyebrow">
+              <span className="kt-rule" />
               <span>{t('devotionalOfferings')}</span>
-            </span>
-            <h2 className={`modern-section-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-              {lang === 'en' ? 'Sacred Vazhipadu Offerings' : 'പ്രധാന വഴിപാടുകൾ'}
+            </div>
+            <h2 className={`kt-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? (
+                <>Sacred <em>Vazhipadu</em> Offerings</>
+              ) : (
+                <>പ്രധാന വഴിപാടുകൾ</>
+              )}
             </h2>
-            <p className="modern-section-subtitle">
+            <p className="kt-sub">
               {lang === 'en'
                 ? 'Offer sacred poojas, pushpanjalis, and payasam to invoke Mother Bhadrakali’s protection and blessings.'
                 : 'അമ്മയുടെ അനുഗ്രഹത്തിനായി നിത്യ പൂജകളും പുഷ്പാഞ്ജലികളും പായസ നിവേദ്യങ്ങളും ഓൺലൈനായി ബുക്ക് ചെയ്യാം.'}
             </p>
-            <div className="modern-golden-rule"></div>
           </div>
 
-          {/* Category Filter Chips */}
-          <div className="offering-filter-chips-row">
-            {['All', 'Bhadrakali', 'Ganapathy', 'Nagaraja'].map(category => (
+          <div className="kt-chips kt-reveal">
+            {offeringCategories.map((c) => (
               <button
-                key={category}
-                className={`filter-chip-btn ${activeOfferingCategory === category ? 'active' : ''}`}
+                key={c.id}
+                className={`kt-chip ${activeOfferingCategory === c.id ? 'active' : ''}`}
                 onClick={() => {
-                  setActiveOfferingCategory(category);
+                  setActiveOfferingCategory(c.id);
                   playTempleBell(1.15);
                 }}
               >
-                <span>
-                  {category === 'All'
-                    ? (lang === 'en' ? 'All Top Offerings' : 'എല്ലാ വഴിപാടുകളും')
-                    : category}
+                {c.id === 'All'
+                  ? (lang === 'en' ? 'All Top Offerings' : 'എല്ലാ വഴിപാടുകളും')
+                  : c.id}
+              </button>
+            ))}
+          </div>
+
+          <div className="kt-menu kt-reveal">
+            {filteredOfferings.map((offering, i) => (
+              <button key={offering.id} className="kt-menu-row" onClick={() => onNavigate('vazhipadu')}>
+                <span className="kt-menu-idx">{String(i + 1).padStart(2, '0')}</span>
+                <span className="kt-menu-main">
+                  <span className="kt-menu-deity">{offering.deity}</span>
+                  <strong className={lang === 'ml' ? 'text-malayalam' : ''}>
+                    {lang === 'en' ? offering.nameEn : offering.nameMl}
+                  </strong>
+                  <span className="kt-menu-desc">{offering.desc}</span>
+                </span>
+                <span className="kt-menu-meta">
+                  <span className="kt-menu-price">₹{offering.price}</span>
+                  <span className="kt-menu-book">
+                    <span>{lang === 'en' ? 'Book' : 'ബുക്ക് ചെയ്യുക'}</span>
+                    <ArrowRight size={14} />
+                  </span>
                 </span>
               </button>
             ))}
           </div>
 
-          {/* Cards Grid */}
-          <div className="modern-offerings-grid">
-            {filteredOfferings.map((offering) => (
-              <div key={offering.id} className="modern-offering-card hover-glow-card">
-                <div className="offering-top-meta">
-                  <span className="offering-deity-tag">{offering.deity}</span>
-                  <span className="offering-price-pill">₹{offering.price}</span>
-                </div>
-
-                <div className="offering-body-wrap">
-                  <h4 className={lang === 'ml' ? 'offering-name text-malayalam' : 'offering-name'}>
-                    {lang === 'en' ? offering.nameEn : offering.nameMl}
-                  </h4>
-                  <p className="offering-description">{offering.desc}</p>
-                </div>
-
-                <div className="offering-card-cta">
-                  <button className="btn-modern-book-offering" onClick={() => onNavigate('vazhipadu')}>
-                    <Sparkles size={14} />
-                    <span>{t('bookNow')}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="section-center-action">
-            <button className="btn-modern-wine-lg" onClick={() => onNavigate('vazhipadu')}>
-              <span>{t('viewFullCatalog')}</span>
-              <ArrowRight size={16} className="btn-arrow" />
+          <div className="kt-center">
+            <button className="kt-btn kt-btn-gold" onClick={() => onNavigate('vazhipadu')}>
+              <span>{lang === 'en' ? 'View Full Catalogue' : 'മുഴുവൻ വഴിപാട് പട്ടിക'}</span>
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Dedicated Interactive Virtual Nilavilakku Diya Samarppanam */}
-      <section className="virtual-diya-section modern-section section-padding-dark">
+      {/* ============ VIRTUAL DIYA ============ */}
+      <section className="kt-diya">
         <div className="container">
-          <div className="virtual-diya-card">
-            <div className="virtual-diya-grid">
-              {/* Lamp Visual Column */}
-              <div className="virtual-diya-visual-col">
-                <div className={`nilavilakku-podium ${virtualDiyaSubmitted ? 'lit' : ''}`}>
-                  <div className="lamp-glow-aura"></div>
-                  <div className="brass-nilavilakku-graphic">
-                    <Flame size={44} className={`podium-flame ${virtualDiyaSubmitted ? 'flame-dancing' : ''}`} />
-                    <img src="/lamp-icon.svg" alt="Sacred Nilavilakku" className="podium-lamp-img animate-flame" />
+          <div className="kt-diya-card kt-reveal">
+            <div className="kt-diya-grid">
+              <div className="kt-diya-visual">
+                <div className={`kt-lamp ${virtualDiyaSubmitted ? 'lit' : ''}`}>
+                  <div className="kt-lamp-halo" />
+                  <div className="kt-lamp-stand">
+                    <Flame size={36} className={`kt-lamp-flame ${virtualDiyaSubmitted ? 'dance' : ''}`} />
+                    <img src="/lamp-icon.svg" alt="" className="kt-lamp-icon animate-flame" />
                   </div>
-                  <div className="podium-base-reflection"></div>
+                  <div className="kt-lamp-base" />
                 </div>
-
-                <div className="virtual-diya-counter-box">
-                  <Flame size={15} className="text-gold" />
+                <div className="kt-diya-counter">
+                  <Flame size={14} />
                   <span>
-                    <strong>{virtualDiyasCount.toLocaleString()}</strong> {lang === 'en' ? 'Sacred Lamps Lit Today' : 'വിളക്കുകൾ ഇന്ന് തെളിഞ്ഞു'}
+                    <strong>{virtualDiyasCount.toLocaleString()}</strong>
+                    {lang === 'en' ? ' Sacred Lamps Lit Today' : ' വിളക്കുകൾ ഇന്ന് തെളിഞ്ഞു'}
                   </span>
                 </div>
               </div>
 
-              {/* Form & Devotional Offering Column */}
-              <div className="virtual-diya-form-col">
-                <span className="modern-eyebrow eyebrow-light">
-                  <Flame size={14} className="text-gold" />
+              <div className="kt-diya-copy">
+                <div className="kt-eyebrow">
+                  <span className="kt-rule" />
                   <span>{lang === 'en' ? 'Sacred Virtual Samarppanam' : 'നെയ്‌വിളക്ക് സമർപ്പണം'}</span>
-                </span>
+                </div>
 
-                <h3 className="virtual-diya-title">
+                <h3 className={`kt-diya-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
                   {lang === 'en'
                     ? 'Light a Sacred Lamp for Mother Bhadrakali'
-                    : 'ഭഗവതിയുടെ തിരുമുമ്പിൽ ഭക്തിപൂർവ്വം ഒരു തിരി തെളിയിക്കൂ'}
+                    : 'ഭഗവതിയുടെ തിരുമുമ്പിൽ ഭക്തിപൂർവ്വം ഒരു നെയ്‌വിളക്ക് തെളിയിക്കൂ'}
                 </h3>
 
-                <p className="virtual-diya-desc">
+                <p className="kt-diya-desc">
                   {lang === 'en'
                     ? 'Wherever you are in the world, offer a virtual ghee lamp with your Nakshathram. May the sacred flame dispel darkness and bestow health, peace, and auspicious grace.'
-                    : 'ലോകത്തിന്റെ ഏത് കോണിലിരുന്നും നിങ്ങളുടെ ജന്മനക്ഷത്രത്തിൽ ഭഗവതിക്ക് ഒരു നെയ്‌വിളക്ക് തെളിയിച്ച് പ്രാർത്ഥിക്കാം. അമ്മയുടെ കാരുണ്യം സദാ നിങ്ങളെ തുണയ്ക്കട്ടെ.'}
+                    : 'ലോകത്തിന്റെ ഏത് കോണിലിരുന്നും നിങ്ങളുടെ ജന്മനക്ഷത്രത്തിൽ ഭഗവതിക്ക് ഒരു നെയ്‌വിളക്ക് തെളിയിച്ച് പ്രാർത്ഥിക്കാം.'}
                 </p>
 
                 {!virtualDiyaSubmitted ? (
-                  <form onSubmit={handleVirtualDiyaSubmit} className="virtual-diya-form">
-                    <div className="diya-form-row">
-                      <div className="form-group-item">
-                        <label>{lang === 'en' ? 'Devotee Name' : 'ഭക്തന്റെ പേര്'}</label>
+                  <form className="kt-diya-form" onSubmit={handleVirtualDiyaSubmit}>
+                    <div className="kt-field-row">
+                      <label className="kt-field">
+                        <span>{lang === 'en' ? 'Devotee Name' : 'ഭക്തന്റെ പേര്'}</span>
                         <input
                           type="text"
-                          placeholder={lang === 'en' ? 'Enter your name' : 'പേര് രേഖപ്പെടുത്തുക'}
                           value={diyaDevoteeName}
                           onChange={(e) => setDiyaDevoteeName(e.target.value)}
-                          className="diya-input-field"
+                          placeholder={lang === 'en' ? 'Enter your name' : 'പേര് രേഖപ്പെടുത്തുക'}
                           required
                         />
-                      </div>
-
-                      <div className="form-group-item">
-                        <label>{lang === 'en' ? 'Birth Star (Nakshathram)' : 'ജന്മനക്ഷത്രം'}</label>
+                      </label>
+                      <label className="kt-field">
+                        <span>{lang === 'en' ? 'Birth Star (Nakshathram)' : 'ജന്മനക്ഷത്രം'}</span>
                         <select
                           value={selectedNakshatram}
                           onChange={(e) => setSelectedNakshatram(e.target.value)}
-                          className="diya-select-field"
                         >
-                          {nakshathras.map(star => (
+                          {nakshathras.map((star) => (
                             <option key={star.id} value={star.en}>
                               {lang === 'en' ? star.en : star.ml}
                             </option>
                           ))}
                         </select>
-                      </div>
+                      </label>
                     </div>
-
-                    <button type="submit" className="btn-light-virtual-diya">
-                      <Flame size={18} />
+                    <button type="submit" className="kt-btn kt-btn-gold kt-btn-block">
+                      <Flame size={17} />
                       <span>{lang === 'en' ? 'Light Sacred Ghee Lamp' : 'നെയ്‌വിളക്ക് തെളിയിക്കുക'}</span>
                     </button>
                   </form>
                 ) : (
-                  <div className="virtual-diya-success-card animate-fade-in">
-                    <div className="success-badge-icon">
-                      <CheckCircle2 size={32} className="text-gold" />
-                    </div>
-                    <h4>{lang === 'en' ? 'Sacred Diya Lit with Devotion' : 'നെയ്‌വിളക്ക് ഭക്തിപൂർവ്വം തെളിഞ്ഞു'}</h4>
-                    <p className="blessing-person">
+                  <div className="kt-diya-success">
+                    <div className="kt-success-ic"><CheckCircle2 size={30} /></div>
+                    <h4 className={lang === 'ml' ? 'text-malayalam' : ''}>
+                      {lang === 'en' ? 'Sacred Diya Lit with Devotion' : 'നെയ്‌വിളക്ക് ഭക്തിപൂർവ്വം തെളിഞ്ഞു'}
+                    </h4>
+                    <p className="kt-success-person">
                       {diyaDevoteeName ? `${diyaDevoteeName} • ` : ''}{selectedNakshatram} {lang === 'en' ? 'Nakshathram' : 'നക്ഷത്രം'}
                     </p>
-                    <p className="blessing-text">
+                    <p className="kt-success-bless">
                       {lang === 'en'
-                        ? '"Om Sree Bhadrakalyai Namah • May Divine Mother bless you with boundless health, peace, and auspicious grace."'
-                        : '"ഓം ശ്രീ ഭദ്രകാള്യൈ നമഃ • ഭഗവതിയുടെ കാരുണ്യവും അനുഗ്രഹവും സദാ ഉണ്ടാകട്ടെ."'}
+                        ? '"Om Sree Bhadrakalyai Namah · May Divine Mother bless you with boundless health, peace, and auspicious grace."'
+                        : '"ഓം ശ്രീ ഭദ്രകാള്യൈ നമഃ · ഭഗവതിയുടെ കാരുണ്യവും അനുഗ്രഹവും സദാ ഉണ്ടാകട്ടെ."'}
                     </p>
-                    <button
-                      className="btn-light-again"
-                      onClick={() => setVirtualDiyaSubmitted(false)}
-                    >
-                      <span>{lang === 'en' ? 'Light Another Lamp' : 'മറ്റൊരു തിരി തെളിയിക്കുക'}</span>
+                    <button className="kt-btn kt-btn-outline kt-btn-sm" onClick={() => setVirtualDiyaSubmitted(false)}>
+                      <span>{lang === 'en' ? 'Light Another Lamp' : 'മറ്റൊരു നെയ്‌വിളക്ക്'}</span>
                     </button>
                   </div>
                 )}
@@ -607,260 +714,197 @@ export function HomePage({ onNavigate, onOpenDonation, onSelectDeityForPooja }) 
         </div>
       </section>
 
-      {/* Grand Bharani Mahotsavam Spotlight */}
-      <section className="home-festival-spotlight modern-section section-padding-dark">
-        <div className="container">
-          <div className="modern-festival-spotlight-card">
-            <div className="spotlight-content-side">
-              <div className="spotlight-badge">
-                <Flame size={15} className="text-gold" />
-                <span>{lang === 'en' ? 'Grand Annual Mahotsavam' : 'വാർഷിക ഭരണി മഹോത്സവം'}</span>
-              </div>
-
-              <h2 className={`spotlight-heading ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-                {lang === 'en' ? 'Annual Bharani Mahotsavam' : 'ഭരണി മഹോത്സവം'}
-              </h2>
-              
-              <h3 className="spotlight-subtitle">
-                {lang === 'en'
-                  ? 'Kumbham/Meenam • Thalappoli, Chenda Melam & Midnight Guruthi'
-                  : 'കുംഭം/മീനം • താലപ്പൊലി, ചെണ്ടമേളം, കുത്തിയോട്ടം & പവിത്രമായ ഗുരുതി'}
-              </h3>
-
-              <p className="spotlight-text">
-                {t('festivalHomeSummary')}
-              </p>
-
-              {/* Modern Live Glowing Countdown */}
-              <div className="modern-countdown-cluster">
-                {[
-                  { val: timeLeft.days, unit: lang === 'en' ? 'Days' : 'ദിവസം' },
-                  { val: String(timeLeft.hours).padStart(2, '0'), unit: lang === 'en' ? 'Hours' : 'മണിക്കൂർ' },
-                  { val: String(timeLeft.minutes).padStart(2, '0'), unit: lang === 'en' ? 'Mins' : 'മിനിറ്റ്' },
-                  { val: String(timeLeft.seconds).padStart(2, '0'), unit: lang === 'en' ? 'Secs' : 'സെക്കൻഡ്' },
-                ].map((cd, i) => (
-                  <React.Fragment key={i}>
-                    <div className="modern-cd-tile glow-tile">
-                      <span className="cd-digit">{cd.val}</span>
-                      <span className="cd-caption">{cd.unit}</span>
-                    </div>
-                    {i < 3 && <div className="cd-dot-sep">:</div>}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* 4 Festival Highlights */}
-              <div className="festival-highlights-row">
-                <span className="fest-pill">{lang === 'en' ? '🌸 Pongala Mahotsavam' : '🌸 പൊങ്കാല മഹോത്സവം'}</span>
-                <span className="fest-pill">{lang === 'en' ? '🥁 Traditional Melam' : '🥁 പഞ്ചവാദ്യം & മേളം'}</span>
-                <span className="fest-pill">{lang === 'en' ? '🪔 Thalappoli Procession' : '🪔 താലപ്പൊലി ഘോഷയാത്ര'}</span>
-                <span className="fest-pill">{lang === 'en' ? '🔥 Midnight Guruthi' : '🔥 അർദ്ധരാത്രി ഗുരുതി'}</span>
-              </div>
-
-              <div className="spotlight-actions-group">
-                <button className="btn-modern-gold" onClick={() => onNavigate('festivals')}>
-                  <Calendar size={16} />
-                  <span>{t('viewFestivalSchedule')}</span>
-                </button>
-                <button className="btn-modern-glass" onClick={onOpenDonation}>
-                  <HeartHandshake size={16} />
-                  <span>{t('festivalDonate')}</span>
-                </button>
-              </div>
+      {/* ============ FESTIVAL ============ */}
+      <section className="kt-festival">
+        <div className="kt-fest-kasavu" aria-hidden="true" />
+        <div className="container kt-fest-inner">
+          <div className="kt-fest-copy kt-reveal">
+            <div className="kt-fest-badge">
+              <Flame size={14} />
+              <span>{lang === 'en' ? 'Grand Annual Mahotsavam' : 'വാർഷിക ഭരണി മഹോത്സവം'}</span>
             </div>
 
-            <div className="spotlight-visual-side">
-              <div className="spotlight-img-frame">
-                <img
-                  src="/images/festival-pongala.jpg"
-                  alt="Bharani Mahotsavam"
-                  className="spotlight-img"
-                />
-                <div className="spotlight-frame-glow"></div>
-              </div>
+            <h2 className={`kt-fest-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? (
+                <>Annual <em>Bharani Mahotsavam</em></>
+              ) : (
+                <>ഭരണി മഹോത്സവം</>
+              )}
+            </h2>
+
+            <p className="kt-fest-subtitle">
+              {lang === 'en'
+                ? 'Kumbham / Meenam · Thalappoli, Chenda Melam & Midnight Guruthi'
+                : 'കുംഭം / മീനം · താലപ്പൊലി, ചെണ്ടമേളം & അർദ്ധരാത്രി ഗുരുതി'}
+            </p>
+
+            <div className="kt-fest-count">
+              {[
+                { val: timeLeft.days, unit: lang === 'en' ? 'Days' : 'ദിവസം' },
+                { val: String(timeLeft.hours).padStart(2, '0'), unit: lang === 'en' ? 'Hours' : 'മണിക്കൂർ' },
+                { val: String(timeLeft.minutes).padStart(2, '0'), unit: lang === 'en' ? 'Mins' : 'മിനിറ്റ്' },
+                { val: String(timeLeft.seconds).padStart(2, '0'), unit: lang === 'en' ? 'Secs' : 'സെക്കൻഡ്' }
+              ].map((cd, i) => (
+                <React.Fragment key={i}>
+                  <div className="kt-cd-tile">
+                    <strong>{cd.val}</strong>
+                    <span>{cd.unit}</span>
+                  </div>
+                  {i < 3 && <span className="kt-cd-sep">:</span>}
+                </React.Fragment>
+              ))}
             </div>
+
+            <p className="kt-fest-text">{t('festivalHomeSummary')}</p>
+
+            <ul className="kt-fest-points">
+              <li>{lang === 'en' ? 'Pongala Mahotsavam' : 'പൊങ്കാല മഹോത്സവം'}</li>
+              <li>{lang === 'en' ? 'Traditional Melam' : 'പഞ്ചവാദ്യം & മേളം'}</li>
+              <li>{lang === 'en' ? 'Thalappoli Procession' : 'താലപ്പൊലി ഘോഷയാത്ര'}</li>
+              <li>{lang === 'en' ? 'Midnight Guruthi' : 'അർദ്ധരാത്രി ഗുരുതി'}</li>
+            </ul>
+
+            <div className="kt-fest-actions">
+              <button className="kt-btn kt-btn-gold" onClick={() => onNavigate('festivals')}>
+                <Calendar size={16} />
+                <span>{t('viewFestivalSchedule')}</span>
+              </button>
+              <button className="kt-btn kt-btn-ghost" onClick={onOpenDonation}>
+                <HeartHandshake size={16} />
+                <span>{t('festivalDonate')}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="kt-fest-media kt-reveal">
+            <img src="/images/festival-pongala.jpg" alt={lang === 'en' ? 'Bharani Mahotsavam' : 'ഭരണി മഹോത്സവം'} />
+            <span className="kt-fest-caption">
+              {lang === 'en' ? 'The grand festival of Thurayilkunnu' : 'തുറയിൽക്കുന്നിലെ മഹോത്സവം'}
+            </span>
+            <span className="kt-fest-frame-kasavu" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      {/* Nithya Annadanam Holy Food Offering Banner */}
-      <section className="home-annadanam-callout modern-section section-padding">
+      {/* ============ ANNADANAM ============ */}
+      <section className="kt-annadanam">
         <div className="container">
-          <div className="modern-annadanam-banner animated-gold-border">
-            <div className="annadanam-flex-wrap">
-              <div className="annadanam-icon-box">
-                <HeartHandshake size={38} className="text-gold animate-flame" />
-              </div>
-              <div className="annadanam-copy">
-                <span className="annadanam-eyebrow">
-                  {t('annadanamLabel')}
-                </span>
-                <h3 className={`annadanam-header ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-                  {t('annadanamTitle')}
-                </h3>
-                <p className="annadanam-subtext">
-                  {t('annadanamDesc')}
-                </p>
-
-                {/* Daily Meals Progress Bar */}
-                <div className="annadanam-progress-wrap">
-                  <div className="progress-labels">
-                    <span>{lang === 'en' ? "Today's Annadanam Sponsorship: 290 / 350 Meals" : 'ഇന്നത്തെ അന്നദാന സംഭാവന: 290 / 350 പേർ'}</span>
-                    <strong className="text-gold">83%</strong>
-                  </div>
-                  <div className="progress-bar-track">
-                    <div className="progress-bar-fill" style={{ width: '83%' }}></div>
-                  </div>
+          <div className="kt-ann-card kt-reveal">
+            <div className="kt-ann-ic"><HeartHandshake size={30} /></div>
+            <div className="kt-ann-copy">
+              <span className="kt-ann-eyebrow">{t('annadanamLabel')}</span>
+              <h3 className={`kt-ann-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+                {lang === 'en' ? 'Annadanam Mahādānam · Sacred Food Offering' : 'അന്നദാനം മഹാദാനം'}
+              </h3>
+              <p className="kt-ann-desc">{t('annadanamDesc')}</p>
+              <div className="kt-ann-progress">
+                <div className="kt-ann-progress-head">
+                  <span>
+                    {lang === 'en' ? "Today's Sponsorship: 290 / 350 Meals" : 'ഇന്നത്തെ അന്നദാനം: 290 / 350 പേർ'}
+                  </span>
+                  <strong>83%</strong>
+                </div>
+                <div className="kt-ann-track">
+                  <div className="kt-ann-fill" style={{ width: '83%' }} />
                 </div>
               </div>
-
-              <div className="annadanam-cta-box">
-                <button className="btn-modern-gold-lg" onClick={onOpenDonation}>
-                  <HeartHandshake size={18} />
-                  <span>{t('donateNow')}</span>
-                </button>
-              </div>
+            </div>
+            <div className="kt-ann-cta">
+              <button className="kt-btn kt-btn-gold" onClick={onOpenDonation}>
+                <HeartHandshake size={17} />
+                <span>{t('donateNow')}</span>
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Devotee Experiences (Clean 3-Card Grid) */}
-      <section className="home-testimonials-section modern-section section-padding-bg">
+      {/* ============ TESTIMONIALS ============ */}
+      <section className="kt-testimonials">
         <div className="container">
-          <div className="section-header-modern">
-            <span className="modern-eyebrow">
-              <Quote size={14} className="text-gold" />
+          <div className="kt-head kt-reveal">
+            <div className="kt-eyebrow">
+              <span className="kt-rule" />
               <span>{lang === 'en' ? 'Devotee Experiences' : 'ഭക്തജന അനുഭവങ്ങൾ'}</span>
-            </span>
-            <h2 className={`modern-section-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-              {lang === 'en' ? 'Testimonies of Divine Grace' : 'ഭഗവതിയുടെ കൃപാകടാക്ഷം'}
+            </div>
+            <h2 className={`kt-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? (
+                <>Testimonies of <em>Divine Grace</em></>
+              ) : (
+                <>ഭഗവതിയുടെ കൃപാകടാക്ഷം</>
+              )}
             </h2>
-            <p className="modern-section-subtitle">
-              {lang === 'en'
-                ? 'Heartfelt blessings and divine experiences shared by pilgrims and devotees across the globe.'
-                : 'അമ്മയുടെ കാരുണ്യത്താൽ അനുഗ്രഹം പ്രാപിച്ച ഭക്തജനങ്ങളുടെ ഹൃദയസ്പർശിയായ അനുഭവങ്ങൾ.'}
-            </p>
-            <div className="modern-golden-rule"></div>
           </div>
 
-          <div className="testimonies-modern-grid">
+          <div className="kt-testi-grid">
             {testimonials.map((item, idx) => (
-              <div key={idx} className="testimony-card hover-lift-card">
-                <div className="testimony-card-header">
-                  <div className="testimony-rating">
-                    {Array.from({ length: item.rating }).map((_, rIdx) => (
-                      <Star key={rIdx} size={15} className="star-icon filled text-gold" />
+              <article key={idx} className="kt-testi-card kt-reveal">
+                <div className="kt-testi-top">
+                  <span className="kt-testi-ic"><Quote size={20} /></span>
+                  <div className="kt-testi-stars">
+                    {Array.from({ length: item.rating }).map((_, s) => (
+                      <Star key={s} size={14} className="filled" />
                     ))}
                   </div>
-                  <span className="testimony-verified-chip">
-                    <CheckCircle2 size={13} className="text-gold" />
-                    <span>{lang === 'en' ? 'Verified Devotee' : 'ഭക്തജന സാക്ഷ്യം'}</span>
+                </div>
+                <p className="kt-testi-quote">"{lang === 'en' ? item.quoteEn : item.quoteMl}"</p>
+                <div className="kt-testi-foot">
+                  <span className="kt-testi-avatar">{item.name.charAt(0)}</span>
+                  <span className="kt-testi-who">
+                    <strong>{item.name}</strong>
+                    <span>
+                      <MapPin size={12} />
+                      {item.location} · <em>{item.offering}</em>
+                    </span>
                   </span>
                 </div>
-
-                <div className="testimony-body">
-                  <Quote size={24} className="quote-watermark text-gold" />
-                  <p className="testimony-quote">
-                    "{lang === 'en' ? item.quoteEn : item.quoteMl}"
-                  </p>
-                </div>
-
-                <div className="testimony-card-footer">
-                  <div className="author-avatar-circle">
-                    {item.name.charAt(0)}
-                  </div>
-                  <div className="author-details">
-                    <h5 className="author-name">{item.name}</h5>
-                    <span className="author-location-text">
-                      <MapPin size={12} className="text-gold" />
-                      <span>{item.location} • <strong className="text-gold">{item.offering}</strong></span>
-                    </span>
-                  </div>
-                </div>
-              </div>
+              </article>
             ))}
-          </div>
-
-          <div className="testimony-callout-strip">
-            <div className="testimony-callout-content">
-              <Sparkles size={18} className="text-gold" />
-              <p>
-                {lang === 'en'
-                  ? 'Have you experienced Mother Bhadrakali’s divine protection? Connect with our temple office to share your prayer or testimony.'
-                  : 'ഭരണത്തേരിലമ്മയുടെ കൃപാകടാക്ഷം അനുഭവിച്ചറിഞ്ഞിട്ടുണ്ടോ? നിങ്ങളുടെ പ്രാർത്ഥനകളും അനുഭവങ്ങളും ക്ഷേത്ര സമിതിയുമായി പങ്കുവെക്കാം.'}
-              </p>
-            </div>
-            <button className="btn-modern-outline" onClick={() => onNavigate('contact')}>
-              <span>{t('contact')}</span>
-              <ArrowRight size={14} className="btn-arrow" />
-            </button>
           </div>
         </div>
       </section>
 
-      {/* Pilgrimage Essentials & Visitor Guide */}
-      <section className="home-essentials-section modern-section section-padding">
+      {/* ============ ESSENTIALS ============ */}
+      <section className="kt-essentials">
         <div className="container">
-          <div className="section-header-modern">
-            <span className="modern-eyebrow">
-              <Compass size={14} className="text-gold" />
+          <div className="kt-head kt-reveal">
+            <div className="kt-eyebrow">
+              <span className="kt-rule" />
               <span>{lang === 'en' ? 'Pilgrimage Essentials' : 'തീർത്ഥാടന വഴികാട്ടി'}</span>
-            </span>
-            <h2 className={`modern-section-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
-              {lang === 'en' ? 'Plan Your Sacred Visit' : 'ക്ഷേത്ര ദർശന വിവരങ്ങൾ'}
+            </div>
+            <h2 className={`kt-title ${lang === 'ml' ? 'text-malayalam' : ''}`}>
+              {lang === 'en' ? (
+                <>Plan Your <em>Sacred Visit</em></>
+              ) : (
+                <>ക്ഷേത്ര ദർശന വിവരങ്ങൾ</>
+              )}
             </h2>
-            <div className="modern-golden-rule"></div>
           </div>
 
-          <div className="modern-essentials-grid">
-            <div className="essential-card hover-lift-card" onClick={() => onNavigate('darshan')}>
-              <div className="essential-icon-circle">
-                <Clock size={22} className="text-gold" />
-              </div>
-              <h4>{t('darshan')}</h4>
-              <p>{lang === 'en' ? 'Daily sanctum opening, deeparadhana, and special pooja calendar.' : 'നിത്യ പൂജാക്രമങ്ങളും ദീപാരാധന സമയങ്ങളും.'}</p>
-              <span className="essential-link-arrow">
-                <span>{lang === 'en' ? 'View Schedule' : 'സമയക്രമം'}</span>
-                <ArrowRight size={14} />
-              </span>
-            </div>
-
-            <div className="essential-card hover-lift-card" onClick={() => onNavigate('vazhipadu')}>
-              <div className="essential-icon-circle">
-                <Sparkles size={22} className="text-gold" />
-              </div>
-              <h4>{t('vazhipadu')}</h4>
-              <p>{lang === 'en' ? 'Book Payasam, Archana, and Homam offerings online with digital receipt.' : 'വഴിപാടുകൾ ഓൺലൈനായി ബുക്ക് ചെയ്യാം.'}</p>
-              <span className="essential-link-arrow">
-                <span>{lang === 'en' ? 'Book Online' : 'വഴിപാട് ബുക്കിംഗ്'}</span>
-                <ArrowRight size={14} />
-              </span>
-            </div>
-
-            <div className="essential-card hover-lift-card" onClick={() => onNavigate('kanikka')}>
-              <div className="essential-icon-circle">
-                <HeartHandshake size={22} className="text-gold" />
-              </div>
-              <h4>{t('kanikka')}</h4>
-              <p>{lang === 'en' ? 'Official temple trust account, online UPI, and 80G tax exemption.' : 'ക്ഷേത്ര ട്രസ്റ്റ് അക്കൗണ്ട്, 80G നികുതി ഇളവ്.'}</p>
-              <span className="essential-link-arrow">
-                <span>{lang === 'en' ? 'Donate Online' : 'കാണിക്ക സമർപ്പിക്കുക'}</span>
-                <ArrowRight size={14} />
-              </span>
-            </div>
-
-            <div className="essential-card hover-lift-card" onClick={() => onNavigate('contact')}>
-              <div className="essential-icon-circle">
-                <Compass size={22} className="text-gold" />
-              </div>
-              <h4>{t('contact')}</h4>
-              <p>{lang === 'en' ? 'NH 66 Karunagappally road, train routes, and temple office helpline.' : 'യാത്രാ വഴികളും ക്ഷേത്ര ഓഫീസ് ഫോൺ നമ്പറും.'}</p>
-              <span className="essential-link-arrow">
-                <span>{lang === 'en' ? 'Get Directions' : 'വഴികാട്ടി'}</span>
-                <ArrowRight size={14} />
-              </span>
-            </div>
+          <div className="kt-essentials-grid">
+            {essentials.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  className={`kt-essential-card kt-reveal ${item.id === 'kanikka' ? 'wine' : ''}`}
+                  onClick={() => (item.id === 'kanikka' ? onOpenDonation() : onNavigate(item.id))}
+                >
+                  <span className="kt-essential-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="kt-essential-ic"><Icon size={21} /></span>
+                  <span className="kt-essential-title">
+                    {lang === 'en' ? item.titleEn : item.titleMl}
+                  </span>
+                  <span className="kt-essential-desc">
+                    {lang === 'en' ? item.descEn : item.descMl}
+                  </span>
+                  <span className="kt-essential-cta">
+                    <span>{lang === 'en' ? item.ctaEn : item.ctaMl}</span>
+                    <ArrowRight size={14} />
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
